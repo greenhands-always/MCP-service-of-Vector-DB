@@ -1,0 +1,39 @@
+[project]
+name = "vector_db_service"
+version = "0.1.0"
+description = "向量数据库MCP服务，基于Qdrant实现"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.23.2",
+    "pydantic>=2.4.2",
+    "loguru>=0.7.2",
+    "python-dotenv>=1.0.0",
+    "qdrant-client>=1.6.0",
+    "websockets>=11.0.3",
+    "openai>=1.2.0",
+    "httpx>=0.25.0",
+    "pydantic-settings>=2.8.1",
+]
+
+[project.optional-dependencies]
+embeddings = [
+    "sentence-transformers>=2.2.2",
+    "torch>=2.6.0; platform_system=='Windows'",
+]
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+start = "src.main:start"
+
+[tool.uv]
+required-environments = [
+    "platform_system == 'Windows'",
+]

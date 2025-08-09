@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  # 向量数据库MCP服务
+  vector-db-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - VECTOR_DB_HOST=0.0.0.0
+      - VECTOR_DB_PORT=8000
+      - VECTOR_DB_DEBUG=true
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+    depends_on:
+      - qdrant
+    volumes:
+      - ./:/app
+    networks:
+      - vector-net
+
+  # Qdrant向量数据库
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - vector-net
+
+volumes:
+  qdrant_data:
+    driver: local
+
+networks:
+  vector-net:
+    driver: bridge
