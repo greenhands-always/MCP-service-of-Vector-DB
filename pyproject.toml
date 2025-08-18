@@ -18,12 +18,14 @@ dependencies = [
     "openai>=1.2.0",
     "httpx>=0.25.0",
     "pydantic-settings>=2.8.1",
+    "sentence-transformers>=5.1.0",
 ]
 
 [project.optional-dependencies]
 embeddings = [
     "sentence-transformers>=2.2.2",
-    "torch>=2.6.0; platform_system=='Windows'",
+    "torch>=2.1.0",
+    "transformers>=4.35.0",
 ]
 
 [build-system]
@@ -32,8 +34,11 @@ build-backend = "setuptools.build_meta"
 
 [project.scripts]
 start = "src.main:start"
-
-[tool.uv]
-required-environments = [
-    "platform_system == 'Windows'",
-]
+#
+#[tool.uv]
+#required-environments = [
+#    "platform_system == 'Windows'",
+#]
+[[tool.uv.index]]
+url="https://pypi.tuna.tsinghua.edu.cn/simple"
+default=true

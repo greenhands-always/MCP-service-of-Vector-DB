@@ -41,21 +41,28 @@ class VectorDBService:
         # 创建Qdrant客户端
         # 尝试使用内存模式
         try:
-            self.client = QdrantClient(
-                host=settings.QDRANT_HOST,
-                port=settings.QDRANT_PORT,
-                grpc_port=settings.QDRANT_GRPC_PORT,
-                api_key=settings.QDRANT_API_KEY,
-                https=settings.QDRANT_HTTPS,
-                timeout=10.0,
-                prefer_grpc=False
-            )
+            if settings.VECTOR_DB_HTTPS:
+                self.client = QdrantClient(
+                    url=settings.VECTOR_DB_URL,
+                    api_key=settings.VECTOR_DB_API_KEY,
+                    https=settings.VECTOR_DB_HTTPS,
+                )
+            else:
+                self.client = QdrantClient(
+                    host=settings.QDRANT_HOST,
+                    port=settings.QDRANT_PORT,
+                    grpc_port=settings.QDRANT_GRPC_PORT,
+                    api_key=settings.QDRANT_API_KEY,
+                    https=settings.QDRANT_HTTPS,
+                    timeout=10.0,
+                    prefer_grpc=False
+                )
             # 测试连接
             self.client.get_collections()
         except Exception as e:
             logger.warning(f"无法连接到远程Qdrant服务器: {e}")
-            logger.info("使用内存模式启动Qdrant")
-            self.client = QdrantClient(":memory:")
+            logger.info("使用磁盘模式访问Qdrant")
+            self.client = QdrantClient(path="./qdrant_data",port=settings.QDRANT_PORT)
         logger.info(f"已连接到Qdrant服务器: {settings.QDRANT_HOST}:{settings.QDRANT_PORT}")
     
     async def create_collection(self, collection: CollectionCreate) -> CollectionInfo:
@@ -87,6 +94,28 @@ class VectorDBService:
                         indexing_threshold=20000
                     )
                 )
+                
+                # 为常用的payload字段创建索引
+                try:
+                    # 为source字段创建关键词索引
+                    self.client.create_payload_index(
+                        collection_name=collection.name,
+                        field_name="source",
+                        field_schema=qdrant_models.KeywordIndexParams(
+                            type="keyword"
+                        )
+                    )
+                    # 为text字段创建文本索引
+                    self.client.create_payload_index(
+                        collection_name=collection.name,
+                        field_name="text",
+                        field_schema=qdrant_models.TextIndexParams(
+                            type="text"
+                        )
+                    )
+                    logger.info(f"已为集合 {collection.name} 创建payload索引")
+                except Exception as index_error:
+                    logger.warning(f"创建payload索引失败: {index_error}")
                 logger.info(f"已创建集合: {collection.name}")
                 
                 # 返回新集合信息
@@ -354,7 +383,7 @@ class VectorDBService:
             if filter:
                 filter_condition = self._build_filter(filter)
             
-            # 执行搜索
+            # 执行搜索 - 使用search方法
             search_results = self.client.search(
                 collection_name=collection_name,
                 query_vector=query_vector,
@@ -375,13 +404,8 @@ class VectorDBService:
                 )
                 matches.append(search_match)
             
-            search_result = SearchResult(
-                matches=matches,
-                query=None  # 如果需要，可以添加原始查询文本
-            )
-            
             logger.debug(f"在集合 {collection_name} 中搜索到 {len(matches)} 个结果")
-            return search_result.matches
+            return matches
         except Exception as e:
             logger.error(f"向量搜索失败: {str(e)}")
             raise

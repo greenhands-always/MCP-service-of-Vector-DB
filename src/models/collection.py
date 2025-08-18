@@ -78,6 +78,46 @@ class CollectionList(BaseModel):
         }
 
 
+class CollectionResponse(BaseModel):
+    """集合响应模型"""
+    name: str = Field(..., description="集合名称")
+    vector_size: int = Field(..., description="向量维度")
+    vector_count: int = Field(0, description="向量数量")
+    description: Optional[str] = Field(None, description="集合描述")
+    metadata: Optional[Dict[str, Any]] = Field(None, description="集合元数据")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "name": "documents",
+                "vector_size": 768,
+                "vector_count": 1000,
+                "description": "文档向量集合",
+                "metadata": {
+                    "domain": "general",
+                    "language": "zh"
+                }
+            }
+        }
+
+
+class CollectionUpdate(BaseModel):
+    """更新集合的请求模型"""
+    description: Optional[str] = Field(None, description="集合描述")
+    metadata: Optional[Dict[str, Any]] = Field(None, description="集合元数据")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "description": "更新后的文档向量集合",
+                "metadata": {
+                    "domain": "updated",
+                    "language": "zh"
+                }
+            }
+        }
+
+
 class CollectionDeleteResponse(BaseModel):
     """集合删除响应模型"""
     name: str = Field(..., description="集合名称")

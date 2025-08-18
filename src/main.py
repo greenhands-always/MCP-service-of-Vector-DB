@@ -8,6 +8,7 @@ from loguru import logger
 
 from src.api.router import api_router
 from src.core.config import settings
+from src.core.dependencies import get_vector_db, get_embedding_service
 from src.mcp.server import MCPServer
 
 # 创建FastAPI应用
@@ -23,7 +24,9 @@ app = FastAPI(
 app.include_router(api_router, prefix=settings.API_PREFIX)
 
 # 创建MCP服务器
-mcp_server = MCPServer(app)
+vector_db_service = get_vector_db()
+embedding_service = get_embedding_service()
+mcp_server = MCPServer(vector_db_service, embedding_service)
 
 @app.get("/")
 async def root():

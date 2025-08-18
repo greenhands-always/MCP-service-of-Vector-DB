@@ -10,7 +10,7 @@ from typing import List, Dict, Any
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.db.vector_db_service import VectorDBService
-from src.core.embedding import EmbeddingService
+from src.core.embedding import EmbeddingService, create_embedding_service
 from src.models.collection import CollectionCreate
 from src.models.vector import VectorUpload, VectorBatchUpload
 
@@ -22,7 +22,7 @@ async def main():
     
     # 初始化服务
     vector_db = VectorDBService()
-    embedding_service = EmbeddingService()
+    embedding_service = create_embedding_service()
     
     # 创建测试集合
     collection_name = "test_collection"
@@ -49,11 +49,11 @@ async def main():
     
     # 准备测试文档
     documents = [
-        "向量数据库是一种专门设计用于存储、索引和查询向量嵌入的数据库系统。",
-        "向量嵌入是将文本、图像、音频等非结构化数据转换为高维数字向量的表示方法。",
-        "向量数据库的核心功能是高效地执行相似性搜索，如最近邻搜索（k-NN）或近似最近邻搜索（ANN）。",
-        "RAG（检索增强生成）是一种结合了检索系统和生成式AI的技术架构。",
-        "在RAG架构中，向量数据库扮演着存储知识库、语义检索和上下文增强的关键角色。"
+        "向量数据库是一种专门设计用于存储、索引和查询向量嵌入的数据库系统。123213",
+        "向量嵌入是将文本、图像、音频等非结构化数据转换为高维数字向量的表示方法。21312321",
+        "向量数据库的核心功能是高效地执行相似性搜索，如最近邻搜索（k-NN）或近似最近邻搜索（ANN）。12313",
+        "RAG（检索增强生成）是一种结合了检索系统和生成式AI的技术架构。123213",
+        "在RAG架构中，向量数据库扮演着存储知识库、语义检索和上下文增强的关键角色。12312321"
     ]
     
     # 生成文档嵌入
@@ -120,7 +120,7 @@ async def main():
     
     # 清理
     print("\n清理测试数据...")
-    await vector_db.delete_collection(collection_name)
+    # await vector_db.delete_collection(collection_name)
     print("测试完成")
 
 if __name__ == "__main__":
